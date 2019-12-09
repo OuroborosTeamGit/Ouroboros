@@ -27,8 +27,6 @@ Button `Add To Cart`
 
 
  
-
-
 ## Installed App's
 ```
  'shopkz.apps.ShopkzConfig',
