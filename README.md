@@ -75,6 +75,16 @@ urlpatterns = [
     path('profile/edit/' , views.edit_profile , name='edit_profile'),
     path('changepassword/', views.change_password, name='change_password'),
     path('editGood/<int:good_id>', views.edit_good, name='editGood')
+    url(r'^add_to_cart/$', views.add_to_cart_view, name='add_to_cart'),
+    path('remove_from_cart/', views.remove_from_cart_view, name='remove_from_cart'),
+    path('change_item_qty/', views.change_item_qty, name='change_item_qty'),
+    path('cart/', views.cart_view, name='cart'),
+    path('checkout/', views.checkout_view, name='checkout'),
+    path('order/', views.order_create_view, name='create_order'),
+    path('make_order/', views.make_order_view, name='make_order'),
+    path('payment/', views.payment, name='payment'),
+    url(r'^thank_you/$', TemplateView.as_view(template_name='thank_you.html'), name='thank_you'),
+    url(r'^account/$', views.account_view, name='account'),
 ```
 
 ## Templating system
@@ -116,7 +126,32 @@ class Good(models.Model):
     main_rating = models.FloatField(default=0.0)
     numberOfClicks = models.IntegerField(default=0)
     comments_numb = models.IntegerField(default=0)
+    available = models.BooleanField(default=True)
 
+```
+
+**`shopkz.models.Cart`**
+```
+class Cart(models.Model):
+items = models.ManyToManyField(CartItem, blank=True)
+cart_total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+```
+
+**`shopkz.models.Order`**
+```
+class Order(models.Model):
+user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+items = models.ForeignKey(Cart, on_delete=models.CASCADE)
+total = models.DecimalField(max_digits=9, decimal_places=2, default=0.00)
+first_name = models.CharField(max_length=200)
+last_name = models.CharField(max_length=200)
+phone = models.CharField(max_length=20)
+address = models.CharField(max_length=255)
+buying_type = models.CharField(max_length=40, choices=(('Самовывоз', 'Самовывоз'),
+('Доставка', 'Доставка')), default='Самовывоз')
+date = models.DateTimeField(auto_now_add=True)
+comments = models.TextField()
+status = models.CharField(max_length=100, choices=ORDER_STATUS_CHOICES, default=ORDER_STATUS_CHOICES[0][0])
 ```
 
 **`shopkz.models.Comment`**
@@ -130,6 +165,15 @@ class Comment(models.Model):
     def __str__(self):
         return self.comments_text
 ```
+
+**`shopkz.models.MiddlewareNotification`**
+```
+class MiddlwareNotification(models.Model):
+user_name = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+product = models.ForeignKey(Good, on_delete=models.CASCADE)
+is_notified = models.BooleanField(default=False)
+```
+
 
 **`shopkz.models.QuantityOfViews`**
 ```
