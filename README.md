@@ -60,7 +60,7 @@ urlpatterns = [
 ```
 **In the `myproject` app `urls.py`**:
 ```
- path('home/' , views.index , name='index'),
+    path('home/' , views.index , name='index'),
     path('product/<int:good_id>/', views.product, name='product'),
     path('product/<int:good_id>/comment', views.addComment, name='addComment'),
     path('login' , views.loginView , name='login'),
